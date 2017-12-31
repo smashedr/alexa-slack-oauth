@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^favicon\.ico$', RedirectView.as_view(
         url=settings.STATIC_URL + 'images/favicon.ico'
     )),
-    url(r'connect/', home.do_connect, name='connect'),
+    url(r'authorize/', home.do_authorize, name='authorize'),
     url(r'redirect/', home.slack_redirect, name='redirect'),
     url(r'token/', home.give_token, name='token'),
     url(r'success/', home.has_success, name='success'),

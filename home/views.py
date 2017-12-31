@@ -32,9 +32,9 @@ def has_error(request):
 
 
 @require_http_methods(['GET'])
-def do_connect(request):
+def do_authorize(request):
     """
-    # View  /connect
+    # View  /authorize
     """
     log_req(request)
     try:
