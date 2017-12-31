@@ -13,8 +13,9 @@ urlpatterns = [
         url=settings.STATIC_URL + 'images/favicon.ico'
     )),
     url(r'connect/', home.do_connect, name='connect'),
+    url(r'redirect/', home.slack_redirect, name='redirect'),
     url(r'authenticate/', home.do_login, name='authenticate'),
-    url(r'token/', home.get_token, name='token'),
+    url(r'token/', home.give_token, name='token'),
     url(r'success/', home.has_success, name='success'),
     url(r'error/', home.has_error, name='error'),
     url(r'^admin/', admin.site.urls, name="django_admin"),

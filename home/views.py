@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -47,17 +47,17 @@ def do_connect(request):
         if 'state' in request.GET:
             request.session['state'] = request.GET.get('state')
 
-        if request.session['client_id'] != config.get('Oauth', 'client_id'):
+        if request.session['client_id'] != config.get('Amazon', 'client_id'):
             raise ValueError('Inivalid client_id')
         if request.session['redirect_uri'] not in \
-                config.get('Oauth', 'redirect_uris', raw=True).split(' '):
+                config.get('Amazon', 'redirect_uris', raw=True).split(' '):
             raise ValueError('Inivalid redirect_uri')
         if request.session['response_type'] != 'code':
             raise ValueError('Inivalid response_type')
         if not request.session['state']:
             raise ValueError('Inivalid state')
 
-        return render(request, 'login.html')
+        return oauth_redirect()
     except Exception as error:
         logger.exception(error)
         messages.add_message(
@@ -66,6 +66,20 @@ def do_connect(request):
             extra_tags='danger',
         )
         return redirect('error')
+
+
+@require_http_methods(['GET'])
+def slack_redirect(request):
+    """
+    # View  /redirect
+    """
+    try:
+        request.session['code'] = request.GET.get('code')
+        logger.info(request.session['code'])
+        return HttpResponse('Get Slack token, redirect back to Alexa...')
+    except Exception as error:
+        logger.exception(error)
+        return HttpResponse('Error: {}'.format(error))
 
 
 @require_http_methods(['POST'])
@@ -134,18 +148,18 @@ def do_login(request):
 
 @csrf_exempt
 @require_http_methods(['POST'])
-def get_token(request):
+def give_token(request):
     log_req(request)
     try:
         _code = request.POST.get('code')
         _client_id = request.POST.get('client_id')
         _client_secret = request.POST.get('client_secret')
 
-        if _client_id != config.get('Oauth', 'client_id'):
-            logger.info('invalid_client_id')
-            return JsonResponse(
-                error_resp('invalid_client', 'ClientId is Invalid'), status=400
-            )
+        # if _client_id != config.get('Amazon', 'client_id'):
+        #     logger.info('invalid_client_id')
+        #     return JsonResponse(
+        #         err_resp('invalid_client', 'ClientId is Invalid'), status=400
+        #     )
 
         # try:
         #     if _code:
@@ -156,7 +170,7 @@ def get_token(request):
         # except Exception as error:
         #     logger.exception(error)
         #     return JsonResponse(
-        #         error_resp('invalid_code', 'Code is Invalid'), status=400
+        #         err_resp('invalid_code', 'Code is Invalid'), status=400
         #     )
         key = 'this-is-a-test'
 
@@ -168,11 +182,22 @@ def get_token(request):
     except Exception as error:
         logger.exception(error)
         return JsonResponse(
-            error_resp('unknown_error', 'Unknown Error'), status=400
+            err_resp('unknown_error', 'Unknown Error'), status=400
         )
 
 
-def error_resp(error_code, error_msg):
+def oauth_redirect():
+    url = config.get('Slack', 'oauth_url')
+    params = {
+        'client_id': config.get('Slack', 'client_id'),
+        'redirect_uri': config.get('Slack', 'redirect_uri'),
+        'scope': config.get('Slack', 'oauth_scopes'),
+    }
+    uri = '{}/?{}'.format(url, urllib.parse.urlencode(params))
+    return HttpResponseRedirect(uri)
+
+
+def err_resp(error_code, error_msg):
     resp = {'ErrorCode': error_code, 'Error': error_msg}
     return resp
 

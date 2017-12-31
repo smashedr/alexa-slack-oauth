@@ -10,10 +10,17 @@ app_handler    = file
 app_level      = DEBUG
 django_handler = console
 django_level   = INFO
-log_file       = django.log
+log_file       = /var/log/alexa-slack-oauth/django.log
 
-[Oauth]
-redirect_uri   = http://dev02.cssnr.com:8000/
+[Amazon]
+client_id      = xxxxxxxxxxxxxxxxxxxx
+client_secret  = xxxxxxxxxxxxxxxxxxxx
+redirect_uri   = https://pitangui.amazon.com/api/skill/link/XXXXXXXXXX
+
+[Slack]
+redirect_uri   = https://slack.dev.alexa-skills.solutions/redirect
+authorize_uri  = https://slack.com/oauth/authorize
+token_uri      = https://slack.com/api/oauth.access
 client_id      = xxxxxxxxxxxxxxxxxxxx
 client_secret  = xxxxxxxxxxxxxxxxxxxx
 
