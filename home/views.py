@@ -6,7 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from home.models import TokenDatabase
 import logging
+import random
 import requests
+import string
 import urllib.parse
 
 logger = logging.getLogger('app')
@@ -78,7 +80,7 @@ def slack_redirect(request):
             logger.info('access_denied')
             return HttpResponseRedirect(reverse('error'))
     except Exception as error:
-        logger.exception(error)
+        logger.info(error)
         pass
 
     try:
@@ -92,14 +94,20 @@ def slack_redirect(request):
         except:
             pass
 
+        code = ''.join(
+            random.choice(
+                string.ascii_uppercase + string.digits
+            ) for _ in range(20)
+        )
+
         td = TokenDatabase(
-            code=request.session['code'],
+            code=code,
             token=oauth['access_token'],
         )
         td.save()
 
         params = {
-            'code': request.session['code'], 'state': request.session['state']
+            'code': code, 'state': request.session['state']
         }
         url = request.session['redirect_uri']
         uri = url + '?' + urllib.parse.urlencode(params)
