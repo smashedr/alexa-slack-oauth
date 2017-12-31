@@ -1,0 +1,71 @@
+{% extends "main.html" %}
+{% load staticfiles %}
+
+{% block menu %}{% endblock %}
+
+{% block body %}
+
+    <div id="password-modal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="vertical-alignment-helper">
+            <div class="modal-dialog modal-sm vertical-align-center" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title text-center">Additional Support</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            1. E-Mail
+                            <a href="mailto:support@alexa.com">
+                                support@alexa.com
+                                <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                            </a>
+                        </p>
+                        <p>
+                            2. Call Help at
+                            <a href="tel:5555555555">
+                                5555555555
+                                <i class="fa fa-phone" aria-hidden="true"></i>
+                            </a>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <p class="text-center">More information comin gsoon.</p>
+                        <p class="text-center">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-4 col-xs-offset-4 text-center">
+
+            <p></p>
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <img id="login-logo" class="img-responsive center-block" src="{% static 'images/al64.png' %}" alt="alexa-slack">
+                </div>
+                <div class="col-xs-4">
+                    <img id="login-logo" class="img-responsive center-block" src="{% static 'images/arrow64.png' %}" alt="alexa-slack">
+                </div>
+                <div class="col-xs-4">
+                    <img id="login-logo" class="img-responsive center-block" src="{% static 'images/slack64.png' %}" alt="alexa-slack">
+                </div>
+            </div>
+            <h2 class="text-center">alexa-slack</h2>
+
+            <p>
+                You are being redirected to Slack to authorize this Skill.
+            </p>
+            <div class="alert alert-info" role="alert">
+                <p>This is text in a blue box...</p>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

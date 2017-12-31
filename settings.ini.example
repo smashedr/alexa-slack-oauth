@@ -1,0 +1,24 @@
+[App]
+debug          = True
+secret         = xxxxxxxxxxxxxxxxxxxx
+allowed_hosts  = *
+static_root    = C:\tmp
+
+[Logging]
+app_handler    = file
+app_level      = DEBUG
+django_handler = console
+django_level   = INFO
+log_file       = django.log
+
+[Oauth]
+redirect_uri   = http://dev02.cssnr.com:8000/
+client_id      = xxxxxxxxxxxxxxxxxxxx
+client_secret  = xxxxxxxxxxxxxxxxxxxx
+
+[Database]
+name           = database
+user           = database
+pass           = xxxxxxxxxxxxxxxxxxxx
+host           = mysql
+port           = 3306

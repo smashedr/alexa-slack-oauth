@@ -1,0 +1,9 @@
+.idea/
+*.iml
+.coverage
+__pycache__/
+*.pyc
+venv/
+*.log
+settings.ini
+*.sqlite3
