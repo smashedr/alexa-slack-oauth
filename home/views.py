@@ -18,8 +18,6 @@ config = settings.CONFIG
 def has_error(request):
     """
     # View  /error
-    # This is for debugging only
-    # Error handling does not yet exist
     """
     return render(request, 'error.html')
 
@@ -53,12 +51,7 @@ def do_authorize(request):
         return oauth_redirect()
     except Exception as error:
         logger.exception(error)
-        messages.add_message(
-            request, messages.WARNING,
-            'Invalid Request.',
-            extra_tags='danger',
-        )
-        return redirect('error')
+        return redirect_err('Error: {}'.format(error))
 
 
 @require_http_methods(['GET'])
@@ -69,7 +62,7 @@ def slack_redirect(request):
     try:
         if request.GET['error'] == 'access_denied':
             logger.info('access_denied')
-            return HttpResponseRedirect(reverse('error'))
+            return redirect_err('Request was not Authorized by you or Slack.')
     except Exception as error:
         logger.info(error)
         pass
@@ -106,12 +99,7 @@ def slack_redirect(request):
         return redirect(uri)
     except Exception as error:
         logger.exception(error)
-        messages.add_message(
-            request, messages.WARNING,
-            'Error: {}'.format(error),
-            extra_tags='danger',
-        )
-        return HttpResponseRedirect(reverse('error'))
+        return redirect_err('Error: {}'.format(error))
 
 
 @csrf_exempt
@@ -125,6 +113,7 @@ def give_token(request):
         _code = request.POST.get('code')
         _client_id = request.POST.get('client_id')
         _client_secret = request.POST.get('client_secret')
+        logger.info('client_secret: {}'.format(_client_secret))
 
         if _client_id != config.get('Amazon', 'client_id'):
             logger.info('invalid_client_id')
@@ -188,6 +177,15 @@ def oauth_redirect():
 def err_resp(error_code, error_msg):
     resp = {'ErrorCode': error_code, 'Error': error_msg}
     return resp
+
+
+def redirect_err(request, error='Unknown Error', name='error', tags='danger'):
+    messages.add_message(
+        request, messages.WARNING,
+        error,
+        extra_tags=tags,
+    )
+    return redirect(name)
 
 
 def log_req(request):
