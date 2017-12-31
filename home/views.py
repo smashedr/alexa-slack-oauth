@@ -15,15 +15,6 @@ logger = logging.getLogger('app')
 config = settings.CONFIG
 
 
-def has_success(request):
-    """
-    # View  /success
-    # This is for debugging only
-    # You will be redirected back to Alexa
-    """
-    return render(request, 'success.html')
-
-
 def has_error(request):
     """
     # View  /error
