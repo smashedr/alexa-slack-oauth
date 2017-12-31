@@ -3,6 +3,7 @@ debug          = True
 secret         = xxxxxxxxxxxxxxxxxxxx
 allowed_hosts  = *
 static_root    = C:\tmp
+home_site      = https://alexa-skills.solutions/
 
 [Logging]
 app_handler    = file
