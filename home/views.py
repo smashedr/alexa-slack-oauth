@@ -118,7 +118,7 @@ def give_token(request):
         if _client_id != config.get('Amazon', 'client_id'):
             logger.info('invalid_client_id')
             return JsonResponse(
-                err_resp('invalid_client', 'ClientId is Invalid'), status=400
+                json_err('invalid_client', 'ClientId is Invalid'), status=400
             )
 
         try:
@@ -130,7 +130,7 @@ def give_token(request):
         except Exception as error:
             logger.exception(error)
             return JsonResponse(
-                err_resp('invalid_code', 'Code is Invalid'), status=400
+                json_err('invalid_code', 'Code is Invalid'), status=400
             )
 
         token_resp = {
@@ -141,7 +141,7 @@ def give_token(request):
     except Exception as error:
         logger.exception(error)
         return JsonResponse(
-            err_resp('unknown_error', 'Unknown Error'), status=400
+            json_err('unknown_error', 'Unknown Error'), status=400
         )
 
 
@@ -174,7 +174,7 @@ def oauth_redirect():
     return HttpResponseRedirect(uri)
 
 
-def err_resp(error_code, error_msg):
+def json_err(error_code, error_msg):
     resp = {'ErrorCode': error_code, 'Error': error_msg}
     return resp
 
