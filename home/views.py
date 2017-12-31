@@ -1,13 +1,12 @@
 from django.conf import settings
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from home.models import TokenDatabase
 import logging
-import random
 import requests
-import string
 import urllib.parse
 
 logger = logging.getLogger('app')
@@ -76,6 +75,7 @@ def slack_redirect(request):
     """
     try:
         if request.GET['error'] == 'access_denied':
+            logger.info('access_denied')
             return HttpResponseRedirect(reverse('error'))
     except Exception as error:
         logger.exception(error)
@@ -85,9 +85,33 @@ def slack_redirect(request):
         request.session['code'] = request.GET['code']
         oauth = get_token(request.session['code'])
         logger.info(oauth)
-        return HttpResponse('Get Slack token, redirect back to Alexa...')
+
+        try:
+            td = TokenDatabase.objects.get(code=request.session['code'])
+            td.delete()
+        except:
+            pass
+
+        td = TokenDatabase(
+            code=request.session['code'],
+            token=oauth['access_token'],
+        )
+        td.save()
+
+        params = {
+            'code': request.session['code'], 'state': request.session['state']
+        }
+        url = request.session['redirect_uri']
+        uri = url + '?' + urllib.parse.urlencode(params)
+        logger.info(uri)
+        return redirect(uri)
     except Exception as error:
-        logger.info(error)
+        logger.exception(error)
+        messages.add_message(
+            request, messages.WARNING,
+            'Error: {}'.format(error),
+            extra_tags='danger',
+        )
         return HttpResponseRedirect(reverse('error'))
 
 
@@ -100,27 +124,26 @@ def give_token(request):
         _client_id = request.POST.get('client_id')
         _client_secret = request.POST.get('client_secret')
 
-        # if _client_id != config.get('Amazon', 'client_id'):
-        #     logger.info('invalid_client_id')
-        #     return JsonResponse(
-        #         err_resp('invalid_client', 'ClientId is Invalid'), status=400
-        #     )
+        if _client_id != config.get('Amazon', 'client_id'):
+            logger.info('invalid_client_id')
+            return JsonResponse(
+                err_resp('invalid_client', 'ClientId is Invalid'), status=400
+            )
 
-        # try:
-        #     if _code:
-        #         td = TokenDatabase.objects.get(code=_code)
-        #         key = td.key
-        #     else:
-        #         raise ValueError('code null')
-        # except Exception as error:
-        #     logger.exception(error)
-        #     return JsonResponse(
-        #         err_resp('invalid_code', 'Code is Invalid'), status=400
-        #     )
-        key = 'this-is-a-test'
+        try:
+            if _code:
+                td = TokenDatabase.objects.get(code=_code)
+                token = td.token
+            else:
+                raise ValueError('code null')
+        except Exception as error:
+            logger.exception(error)
+            return JsonResponse(
+                err_resp('invalid_code', 'Code is Invalid'), status=400
+            )
 
         token_resp = {
-            'access_token': key,
+            'access_token': token,
             'token_type': 'bearer',
         }
         return JsonResponse(token_resp)

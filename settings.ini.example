@@ -21,6 +21,7 @@ redirect_uri   = https://pitangui.amazon.com/api/skill/link/XXXXXXXXXX
 redirect_uri   = https://slack.dev.alexa-skills.solutions/redirect
 authorize_uri  = https://slack.com/oauth/authorize
 token_uri      = https://slack.com/api/oauth.access
+oauth_scopes   = chat:write:user
 client_id      = xxxxxxxxxxxxxxxxxxxx
 client_secret  = xxxxxxxxxxxxxxxxxxxx
 
