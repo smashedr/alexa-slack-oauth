@@ -173,7 +173,7 @@ def oauth_redirect():
     """
     Redirects to Slack Oauth
     """
-    url = config.get('Slack', 'oauth_url')
+    url = config.get('Slack', 'token_uri', raw=True)
     params = {
         'client_id': config.get('Slack', 'client_id'),
         'redirect_uri': config.get('Slack', 'redirect_uri'),
