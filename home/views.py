@@ -117,6 +117,9 @@ def slack_redirect(request):
 @csrf_exempt
 @require_http_methods(['POST'])
 def give_token(request):
+    """
+    # View  /token
+    """
     log_req(request)
     try:
         _code = request.POST.get('code')

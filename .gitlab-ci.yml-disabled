@@ -1,0 +1,16 @@
+image: python:3.6
+
+before_script:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+  - pip install coverage flake8
+
+django-test:
+  stage: test
+  script:
+    - cp settings.ini.example settings.ini
+    - python manage.py makemigrations
+    - python manage.py migrate
+    - coverage run manage.py test
+    - coverage report
+    - flake8
