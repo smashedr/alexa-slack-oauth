@@ -6,11 +6,13 @@ Oauth endpoint for alexa-slack.
 
 ## Overview
 
-Amazon Alexa built-in account linking does not work with all oauth endpoints. 
+Amazon Alexa built-in account linking does not work with all oauth endpoints.
+
+
 This endpoint negotiates the oauth with Slack, then returns the `access_token` 
 to Amazon to store with the account for use with the Skill.
 
 ### Documentation
 
-Alexa: https://developer.amazon.com/docs/custom-skills/link-an-alexa-user-with-a-user-in-your-system.html
-Slack:  https://api.slack.com/docs/oauth
+- Alexa: https://developer.amazon.com/docs/custom-skills/link-an-alexa-user-with-a-user-in-your-system.html
+- Slack:  https://api.slack.com/docs/oauth
