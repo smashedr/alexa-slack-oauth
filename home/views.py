@@ -1,11 +1,12 @@
 from django.conf import settings
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import logging
 import random
+import requests
 import string
 import urllib.parse
 
@@ -74,76 +75,20 @@ def slack_redirect(request):
     # View  /redirect
     """
     try:
-        request.session['code'] = request.GET.get('code')
-        logger.info(request.session['code'])
+        if request.GET['error'] == 'access_denied':
+            return HttpResponseRedirect(reverse('error'))
+    except Exception as error:
+        logger.exception(error)
+        pass
+
+    try:
+        request.session['code'] = request.GET['code']
+        oauth = get_token(request.session['code'])
+        logger.info(oauth)
         return HttpResponse('Get Slack token, redirect back to Alexa...')
     except Exception as error:
-        logger.exception(error)
-        return HttpResponse('Error: {}'.format(error))
-
-
-@require_http_methods(['POST'])
-def do_login(request):
-    """
-    # View  /authenticate
-    """
-    log_req(request)
-    try:
-        _key = request.POST.get('key')
-        _password = request.POST.get('password')
-        _secret = request.POST.get('secret')
-
-        # auth_client = gdax.AuthenticatedClient(_key, _secret, _password)
-        # gdax_accounts = auth_client.get_accounts()
-        # logger.info(gdax_accounts)
-        #
-        # if 'message' in gdax_accounts:
-        #     messages.add_message(
-        #         request, messages.WARNING,
-        #         'Error: {}'.format(gdax_accounts['message']),
-        #         extra_tags='danger',
-        #     )
-        #     return redirect('connect')
-
-        # try:
-        #     td = TokenDatabase.objects.get(key=_key)
-        #     td.delete()
-        # except:
-        #     pass
-
-        code = ''.join(
-            random.choice(
-                string.ascii_uppercase + string.digits
-            ) for _ in range(20)
-        )
-        logger.info(code)
-        # td = TokenDatabase(
-        #     key=_key,
-        #     code=code,
-        #     password=_password,
-        #     secret=_secret,
-        # )
-        # td.save()
-
-        messages.add_message(
-            request, messages.SUCCESS,
-            'Successfully Authenticated GDAX.',
-            extra_tags='success',
-        )
-        get_vars = {
-            'code': code, 'state': request.session['state']
-        }
-        url = request.session['redirect_uri']
-        return redirect(url + '?' + urllib.parse.urlencode(get_vars))
-
-    except Exception as error:
-        logger.exception(error)
-        messages.add_message(
-            request, messages.SUCCESS,
-            'Error: {}'.format(error),
-            extra_tags='danger',
-        )
-        return redirect('connect')
+        logger.info(error)
+        return HttpResponseRedirect(reverse('error'))
 
 
 @csrf_exempt
@@ -186,7 +131,25 @@ def give_token(request):
         )
 
 
+def get_token(oauth_code):
+    """
+    Send Oauth to Slack
+    """
+    oauth_uri = 'https://slack.com/api/oauth.access'
+    payload = {
+        "client_id": config.get('Slack', 'client_id'),
+        "client_secret": config.get('Slack', 'client_secret'),
+        "code": oauth_code,
+        'redirect_uri': config.get('Slack', 'redirect_uri'),
+    }
+    r = requests.post(oauth_uri, data=payload)
+    return r.json()
+
+
 def oauth_redirect():
+    """
+    Redirects to Slack Oauth
+    """
     url = config.get('Slack', 'oauth_url')
     params = {
         'client_id': config.get('Slack', 'client_id'),
